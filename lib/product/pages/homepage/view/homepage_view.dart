@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_barcode_app/product/navigation/navigation_enums.dart';
+import 'package:flutter_barcode_app/product/pages/connection_error/view/connection_error_view.dart';
 import 'package:flutter_barcode_app/product/pages/homepage/model/barcode_model.dart';
-import 'package:flutter_barcode_app/product/widgets/appbar.dart';
+import 'package:flutter_barcode_app/product/service/mysql_service.dart';
 import 'package:lottie/lottie.dart';
 
 
@@ -13,6 +14,30 @@ class HomePageView extends StatefulWidget {
 }
 
 class _HomePageViewState extends State<HomePageView> {
+
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+
+    //Setting up connection.
+    MysqlConnect.setConn().then((value) {
+      if(value){
+        setState(() {
+          //Connection completed.
+          isLoading = false;
+          MysqlConnect.conn.close();
+        });
+      }
+      else {
+        //Connection timeout. Pushing error page.
+        Navigator.pop(context);
+        Navigator.push(context, MaterialPageRoute(builder: (context) => const ConnectionErrorView(),));
+      }
+    });
+
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,14 +54,23 @@ class _HomePageViewState extends State<HomePageView> {
     //TODO: --------------------------------
 
     return Scaffold(
-      appBar: projectAppBar,
-      body: Column(
-        mainAxisSize: MainAxisSize.max,
-        children: [
-          LottieAnim(),
-          Buttons(),
-        ]
+      appBar: AppBar(
+        title: const Text('BARKOD TARAYICI'),
+        actions: [
+          IconButton(
+            onPressed: () {
+              Navigator.of(context).pushNamed(Routes.cart.name);
+          }, icon: const Icon(Icons.shopping_cart)),
+        ],
       ),
+      body: isLoading ? const Center(child: CircularProgressIndicator(),) :
+        Column(
+          mainAxisSize: MainAxisSize.max,
+          children: [
+            LottieAnim(),
+            Buttons(),
+          ]
+        ),
     );
   }
 
@@ -65,9 +99,15 @@ class _HomePageViewState extends State<HomePageView> {
                 const SizedBox(height: 20,),
                 ElevatedButton(
                   onPressed: (){
+                    Navigator.pushNamed(context, Routes.orders.name);
+                  },
+                child: const Text('Siparişler')),
+                const SizedBox(height: 20,),
+                ElevatedButton(
+                  onPressed: (){
                     Navigator.pushNamed(context, Routes.savedProducts.name);
                   },
-                child: const Text('Kayıtlı Ürünler')),
+                child: const Text('Tüm Ürünler')),
               ],
             ),
           ),

@@ -20,6 +20,9 @@ class ThemeLight{
         minimumSize: const Size(200, 50)
         
       )
+    ),
+    progressIndicatorTheme: ProgressIndicatorThemeData(
+      color: ProjectColors.mainBlack
     )
   );
 }

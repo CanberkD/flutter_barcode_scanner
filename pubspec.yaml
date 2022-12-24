@@ -39,6 +39,8 @@ dependencies:
   lottie: ^2.0.0
   flutter_barcode_scanner: ^2.0.0
   shared_preferences: ^2.0.15
+  mysql1: ^0.20.0
+  cached_network_image: ^3.2.3
 
 dev_dependencies:
   flutter_test:

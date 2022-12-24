@@ -26,7 +26,7 @@ class StorageService{
         if (json is Map<String, dynamic>) {
           return ProductModel.fromJson(json);
         }
-        return ProductModel(barcode: '', name: '', manufacturer: 'manufacturer', stock: 0, price: 0);
+        return ProductModel(barcode: '', name: '', manufacturer: 'manufacturer', stock: 0, price: 0, imgUrl: '');
       }).toList();
     }
     return null;
@@ -34,7 +34,13 @@ class StorageService{
 
   //Save new list to storage.
   void saveListToStorage(List<ProductModel> list){
-    List<String> jsonRecordedMoodModelList = list.map((element) => jsonEncode(element.toJson())).toList();
+
+    List<String> jsonRecordedMoodModelList = list.map(
+      (element) => jsonEncode(
+        element.toJson()
+      )
+    ).toList();
+
     SharedPrefInstance.instance.setStringList(StorageKeys.products.name, jsonRecordedMoodModelList);
   }
 
@@ -45,7 +51,6 @@ class StorageService{
     List<ProductModel> list = getListFromStorage()!;
     list.removeWhere((item) => item.barcode == itemsBarcode);
     saveListToStorage(list);
-  
   }
   
   //Update item from productList with barcode.[Check todo]
@@ -55,7 +60,6 @@ class StorageService{
     List<ProductModel> list = getListFromStorage()!;
     list[list.indexWhere((element) => element.barcode == itemsBarcode)] = updatedProductModel;
     saveListToStorage(list);
-
   }
 
 }

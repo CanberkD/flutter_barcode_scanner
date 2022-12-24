@@ -1,4 +1,4 @@
-enum Routes {home, savedProducts,} 
+enum Routes {home, savedProducts, conError, orders, cart} 
 extension RoutesExtension on Routes {
   String get name {
     switch(this){
@@ -6,6 +6,12 @@ extension RoutesExtension on Routes {
         return "/";
       case Routes.savedProducts:
         return "/savedProduct";
+      case Routes.conError:
+        return "/conError";
+      case Routes.orders:
+        return "/orders";
+      case Routes.cart:
+        return "/cart";
     }
   }
 }

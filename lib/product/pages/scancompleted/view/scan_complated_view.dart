@@ -1,9 +1,11 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_barcode_app/product/navigation/navigation_enums.dart';
+import 'package:flutter_barcode_app/product/pages/connection_error/view/connection_error_view.dart';
 import 'package:flutter_barcode_app/product/pages/homepage/model/barcode_model.dart';
+import 'package:flutter_barcode_app/product/pages/make_order/view/make_order_view.dart';
+import 'package:flutter_barcode_app/product/service/mysql_service.dart';
 import 'package:flutter_barcode_app/product/service/product_model.dart';
-import 'package:flutter_barcode_app/product/service/barcode_service.dart';
 import 'package:flutter_barcode_app/product/widgets/appbar.dart';
 import 'package:flutter_barcode_app/product/widgets/result_text.dart';
 
@@ -21,23 +23,53 @@ class ScanCompletedView extends StatefulWidget {
 
 class _ScanCompletedViewState extends State<ScanCompletedView> {
 
+  late final ProductModel? productModel;
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    MysqlConnect.setConn().then((value) {
+      
+      if(value){
+        MysqlConnect().findProductWithBarcode(widget.barcode).then((value) {
+          setState(() {
+            productModel = value;
+            isLoading = false;
+            MysqlConnect.conn.close();
+          });});
+      }
+      else{
+        Navigator.pop(context);
+        Navigator.push(context, MaterialPageRoute(builder: (context) => const ConnectionErrorView(),));
+      }
+      
+    });
+
+    
+    
+  }
+
   @override
   Widget build(BuildContext context) {
 
-    final ProductModel? productModel = BarcodeService().findModelWithBarcode(widget.barcode);
+    //For local storage.
+    //final ProductModel? productModel = BarcodeService().findModelWithBarcode(widget.barcode);
     
     return WillPopScope(
-      onWillPop: () async{ Navigator.of(context).popAndPushNamed(Routes.home.name); return true; },
+      onWillPop: () async{ Navigator.of(context).popAndPushNamed(Routes.home.name); return false; },
       child: Scaffold(
         appBar: projectAppBar,
-        body: Column(
+        body: isLoading ? 
+          const Center(child: CircularProgressIndicator()) :
+          Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Column(
               children: [
                 Title(),
                 ResultContainer(productModel),
-              ]
+              ] 
             ), 
             ScanButton()
           ],
@@ -68,7 +100,15 @@ class _ScanCompletedViewState extends State<ScanCompletedView> {
                       child: Align(alignment: Alignment.centerLeft, child: Text('Ürün Hakkında', style: Theme.of(context).textTheme.displaySmall?.copyWith(fontSize: 30),)),
                     ),
                     (pm != null) ? 
-                      AboutProduct(productModel: pm) : 
+                      Column(
+                        children: [
+                          AboutProduct(productModel: pm),
+                          ElevatedButton(onPressed: () {
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => MakeOrderView(productModel: pm,),));
+                          }, child: const Text('Sipariş Oluştur')),
+                          const SizedBox(height: 20,)
+                        ],
+                      ) : 
                       Padding(
                         padding: EdgeInsets.symmetric(horizontal: ScanCompletedSizes.horizontalPadding.value()),
                         child: Column(

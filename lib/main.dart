@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_barcode_app/product/navigation/navigation_enums.dart';
 import 'package:flutter_barcode_app/product/navigation/navigation_routes.dart';
 import 'package:flutter_barcode_app/product/service/storage_service.dart';
 import 'package:flutter_barcode_app/product/theme/theme_light.dart';
@@ -12,6 +13,7 @@ Future<void> main() async{
 }
 
 class MyApp extends StatelessWidget {
+
   const MyApp({super.key});
 
   @override
@@ -20,7 +22,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Barkod Tarayıcı',
       theme: ThemeLight().themeLight,
-      initialRoute: "/",
+      initialRoute:Routes.home.name,
       routes: NavigationRoutes().routes,
     );
   }
