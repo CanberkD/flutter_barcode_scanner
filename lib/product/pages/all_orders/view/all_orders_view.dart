@@ -60,7 +60,7 @@ class _AllOrderViewState extends State<AllOrderView> {
                               child: Column(
                                 children: [
                                   ResultTextItem(text: orderList![index].orderBarcode, title: 'Sipariş Barkodu: ', isCentered: true),
-                                  ResultTextItem(isCentered: false, title: 'Ürünler: ',text: '${orderList![index].productsBarcodes[0]}\n${orderList![index].productsBarcodes[1]}\n${orderList![index].productsBarcodes[2]}',),
+                                  ResultTextItem(isCentered: false, title: 'Ürünler: ',text: orderList![index].productsBarcodes[index],),
                                   Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [

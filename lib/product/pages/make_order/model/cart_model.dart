@@ -4,6 +4,7 @@ class CartModel{
   static List<String> productBarcodes = List.empty(growable: true);
   static List<double> productPrices = List.empty(growable: true);
   static List<int> pieces = List.empty(growable: true);
+  static List<String> imgUrls = List.empty(growable: true);
   
 
   static void addProductToList(ProductModel pm){

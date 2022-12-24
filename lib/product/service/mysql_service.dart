@@ -12,7 +12,7 @@ class MysqlConnect {
   static Future<bool> setConn() async {
     try {
       conn = await MySqlConnection.connect(ConnectionSettings(
-          host: '192.168.1.37',
+          host: '192.168.1.35',
           port: 3306,
           user: 'root',
           db: 'flutter_test',
@@ -170,23 +170,36 @@ class MysqlConnect {
     //return orderList;
   //}
 
+//ORDER++++++++++++++++++++++++++++++++++++++++++
+
 Future<List<OrderModel>?> getAllOrders() async {
     var results = await conn.query('select * from t_order');
 
+    String orderBarcode = '';
     List<OrderModel>? orderList = List.empty(growable: true);
+    List<String>? barcodeList = List.empty(growable: true);
+    List<String>? imgList = List.empty(growable: true);
+    double sum = 0;
 
     for (var row in results) {
-      String p1 = row[4] != null ? '${row[4]} X ${row[5]}' : ' ';
-      String p2 = row[6] != null ? '${row[6]} X ${row[7]}' : ' ';
-      String url1 = await getImgUrl(row[2]);
-      String url2 = await getImgUrl((row[4] != null) ? row[4] : '000000000000');
-      String url3 = await getImgUrl((row[6] != null) ? row[6] : '000000000000');
-      orderList.add(OrderModel(orderBarcode: row[1], productsBarcodes:[row[2], p1, p2], price: row[8], imgUrls: [url1, url2, url3]));
+      var results2 = await conn.query('select * from order_items where orderBarcode = ${row[1]}');
+      for (var row2 in results2){
+        orderBarcode = row2[1];
+        barcodeList.add(row2[2]);
+        sum = sum + int.parse(row2[4].toString());
+        imgList.add(row2[5]);
+      }
+
     }
+
+     orderList.add(OrderModel(
+          orderBarcode: orderBarcode, 
+          productsBarcodes:barcodeList, 
+          price: sum, 
+          imgUrls: imgList));
 
     return orderList;
   }
-
 
   Future<String> getImgUrl(String barcode) async {
     var results = await conn.query('select imgUrl from products where barcode = $barcode') ;
@@ -203,20 +216,34 @@ Future<List<OrderModel>?> getAllOrders() async {
 
     try {
       var results = conn.query(
-          'insert into t_order (id, order_barcode, product_barcode1, piece1, product_barcode2, piece2, product_barcode3, piece3, sum_of_order) values (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+          'insert into t_order (id, order_barcode) values (?, ?)',
           [
             0,
             barcode,
-            CartModel.productBarcodes[0],
-            CartModel.pieces[0],
-            CartModel.productBarcodes.length > 1 ? CartModel.productBarcodes[1] : null,
-            CartModel.productBarcodes.length > 1 ? CartModel.pieces[1] : null,
-            CartModel.productBarcodes.length > 2 ? CartModel.productBarcodes[2]: null,
-            CartModel.productBarcodes.length > 2 ? CartModel.pieces[2]: null,
-            CartModel.calculateSum()
           ]);
+      
+        for(var i = 0; i< CartModel.productBarcodes.length; i++){
+          try{
+          var results = conn.query(
+          'insert into order_items (id, order_barcode, productBarcode, piece, sum, imgUrl) values (?, ?, ?, ?, ?, ?)',
+          [
+            0,
+            barcode,
+            CartModel.productBarcodes[i],
+            CartModel.pieces[i],
+            CartModel.productPrices[i]*CartModel.pieces[i],
+            CartModel.imgUrls[i]
+          ]);
+          }
+          catch(e) {print(e);}
+          
+        }
+        
+
     } catch (e) {print(e);}
   }
 }
+
+//ORDER------------------------------------------
 
 enum Errors { noError, connectionError, alreadyExist }

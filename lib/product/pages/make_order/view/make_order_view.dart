@@ -86,7 +86,7 @@ class _MakeOrderViewState extends State<MakeOrderView> {
                     );
                     MysqlConnect().updateProductWithProductModel(newPm).then((value) {
                       if(value == Errors.noError){
-                        //FOr old order model
+                        //For old order model
                         //MysqlConnect().makeAndOrderWithOrderModel(OrderModel(productModel: newPm, piece: piece, price: price,)).then((value) {
                         //  if(value == Errors.noError){
                         //    showSimpleSnackbar(context, const Text('Sipariş başarılı bir şekilde eklendi.'));
